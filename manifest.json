@@ -1,1 +1,17 @@
-
+{
+  "name": "Můj Tlakoměr",
+  "short_name": "Tlakoměr",
+  "description": "Soukromý deník měření krevního tlaku",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2ecc71",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
