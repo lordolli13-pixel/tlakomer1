@@ -3,208 +3,323 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
     <meta name="theme-color" content="#2ecc71">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="icon.png">
     <link rel="manifest" href="manifest.json">
     
-    <title>Můj Tlakoměr</title>
+    <title>Tlakoměr Pro</title>
+
     <style>
         :root {
-            --primary: #000000;
-            --accent: #2ecc71;
+            --primary: #2c3e50;
+            --accent: #2ecc71; /* Svěží zelená z tvé ikony */
             --danger: #e74c3c;
             --low: #3498db;
-            --bg: #f4f4f4;
-            --border: #000000;
+            --bg: #f8f9fa;
+            --white: #ffffff;
+            --border: #dee2e6;
         }
 
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
         body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg);
             color: var(--primary);
             margin: 0;
-            padding: 10px;
+            padding: 15px;
+            line-height: 1.5;
         }
 
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h2 { text-align: center; border-bottom: 3px solid var(--accent); padding-bottom: 10px; text-transform: uppercase; margin-top: 10px; }
+        .container { max-width: 600px; margin: 0 auto; }
 
+        h2 { text-align: center; margin-bottom: 20px; font-weight: 800; color: var(--primary); }
+
+        /* Statistiky nahoře */
         #total-stats { display: flex; gap: 10px; margin-bottom: 20px; }
-        .stat-box { flex: 1; padding: 12px; border: 1px solid var(--border); text-align: center; border-radius: 8px; background: #fff; }
-        .stat-box b { display: block; font-size: 0.75rem; color: #555; text-transform: uppercase; margin-bottom: 5px; }
-        .stat-box span { font-size: 1.4rem; font-weight: 900; color: var(--accent); }
+        .stat-box { 
+            flex: 1; 
+            background: var(--white); 
+            padding: 15px; 
+            text-align: center; 
+            border-radius: 12px; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border-bottom: 4px solid var(--accent);
+        }
+        .stat-box b { display: block; font-size: 0.7rem; color: #7f8c8d; text-transform: uppercase; margin-bottom: 5px; }
+        .stat-box span { font-size: 1.5rem; font-weight: 900; color: var(--primary); }
 
-        .form-box { background: #fff; padding: 20px; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 25px; }
-        .input-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 12px; }
-        label { font-size: 0.8rem; font-weight: 900; text-transform: uppercase; display: block; margin-bottom: 5px; }
-        input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-weight: bold; font-size: 1rem; }
-        
-        .btn-group { display: flex; gap: 8px; margin-top: 15px; }
-        button { flex: 1; padding: 15px; border: none; border-radius: 10px; font-weight: 900; cursor: pointer; text-transform: uppercase; color: white; }
-        .btn-add { background: var(--accent); }
-        .btn-export { background: #555; }
+        /* Formulář */
+        .card { background: var(--white); padding: 20px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 25px; }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 6px; color: #7f8c8d; text-transform: uppercase; }
+        input { 
+            width: 100%; 
+            padding: 12px; 
+            border: 2px solid var(--border); 
+            border-radius: 10px; 
+            font-size: 1rem; 
+            font-weight: 600;
+            transition: border-color 0.2s;
+        }
+        input:focus { border-color: var(--accent); outline: none; }
+
+        .input-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+        /* Tlačítka */
+        .btn-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 8px; margin-top: 10px; }
+        button { 
+            padding: 14px; 
+            border: none; 
+            border-radius: 10px; 
+            font-weight: 800; 
+            text-transform: uppercase; 
+            cursor: pointer; 
+            color: white; 
+            font-size: 0.85rem;
+        }
+        .btn-save { background: var(--accent); }
+        .btn-export { background: #95a5a6; }
         .btn-print { background: var(--primary); }
+        button:active { transform: scale(0.96); }
 
-        .month-section { margin-top: 35px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
-        .month-title { background: var(--primary); color: white; padding: 12px 15px; font-weight: 900; display: flex; justify-content: space-between; align-items: center; }
-        
-        .table-wrapper { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; background: white; min-width: 500px; }
-        th { background: #f1f1f1; padding: 12px; font-size: 0.7rem; border-bottom: 2px solid var(--border); text-align: left; }
-        td { padding: 12px; border-bottom: 1px solid #eee; font-size: 0.95rem; }
+        /* Tabulka a Historie */
+        .month-wrap { margin-bottom: 30px; }
+        .month-header { 
+            background: var(--primary); 
+            color: white; 
+            padding: 12px 15px; 
+            border-radius: 10px 10px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 700;
+        }
+        .table-card { 
+            background: white; 
+            border-radius: 0 0 10px 10px; 
+            overflow: hidden; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #f1f3f5; padding: 10px; font-size: 0.65rem; color: #7f8c8d; text-align: left; text-transform: uppercase; }
+        td { padding: 12px 10px; border-bottom: 1px solid #f1f3f5; font-size: 0.9rem; }
 
-        .val-bold { font-weight: 900; font-size: 1.1rem; }
-        .pulse-bold { font-weight: 900; color: var(--accent); }
-        .who-badge { font-size: 0.65rem; padding: 4px 6px; border-radius: 4px; font-weight: 900; color: white; border: 1px solid rgba(0,0,0,0.2); }
-        .btn-del-icon { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--danger); }
+        .val { font-weight: 800; font-size: 1.05rem; }
+        .badge { 
+            font-size: 0.65rem; 
+            padding: 3px 6px; 
+            border-radius: 5px; 
+            color: white; 
+            font-weight: 800; 
+            text-transform: uppercase;
+        }
+        .delete-btn { color: var(--danger); background: none; border: none; font-size: 1.2rem; padding: 0; width: auto; }
 
-        @media print { .form-box, .btn-group, .col-del { display: none !important; } }
+        @media print {
+            .card, .btn-grid, .delete-btn { display: none !important; }
+            body { padding: 0; background: white; }
+            .container { max-width: 100%; }
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>🩸 DENÍK MĚŘENÍ TLAKU</h2>
+    <h2>🩸 Moje Měření</h2>
+
     <div id="total-stats"></div>
 
-    <div class="form-box">
-        <div style="margin-bottom: 12px;">
-            <label>📅 Datum a čas</label>
+    <div class="card">
+        <div class="input-group">
+            <label>Datum a čas</label>
             <input type="datetime-local" id="datetime">
         </div>
         <div class="input-row">
-            <div><label>SYS</label><input type="number" id="sys" placeholder="120" inputmode="numeric"></div>
-            <div><label>DIA</label><input type="number" id="dia" placeholder="80" inputmode="numeric"></div>
-            <div><label>❤️ Tep</label><input type="number" id="pulse" placeholder="70" inputmode="numeric"></div>
+            <div class="input-group"><label>SYS</label><input type="number" id="sys" placeholder="120" inputmode="numeric"></div>
+            <div class="input-group"><label>DIA</label><input type="number" id="dia" placeholder="80" inputmode="numeric"></div>
+            <div class="input-group"><label>Tep</label><input type="number" id="pulse" placeholder="70" inputmode="numeric"></div>
         </div>
-        <div style="margin-bottom: 12px;">
-            <label>📝 Poznámka</label>
-            <input type="text" id="note" placeholder="např. ráno, léky...">
+        <div class="input-group">
+            <label>Poznámka (volitelné)</label>
+            <input type="text" id="note" placeholder="např. po kávě, ráno...">
         </div>
-        <div class="btn-group">
-            <button class="btn-add" onclick="saveData()">💾 Uložit</button>
-            <button class="btn-export" onclick="exportCSV()">📤 CSV</button>
-            <button class="btn-print" onclick="window.print()">🖨️ Tisk</button>
+        <div class="btn-grid">
+            <button class="btn-save" onclick="saveRecord()">Uložit měření</button>
+            <button class="btn-export" onclick="exportCSV()">CSV</button>
+            <button class="btn-print" onclick="window.print()">Tisk</button>
         </div>
     </div>
+
     <div id="history-container"></div>
 </div>
 
 <script>
-    // Registrace Service Workeru
+    // PWA Registrace
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); });
     }
 
-    document.addEventListener('DOMContentLoaded', () => { setNow(); displayHistory(); });
+    // Inicializace
+    document.addEventListener('DOMContentLoaded', () => {
+        resetDateTime();
+        render();
+    });
 
-    function setNow() {
+    function resetDateTime() {
         const now = new Date();
         now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-        document.getElementById('datetime').value = now.toISOString().slice(0,16);
+        document.getElementById('datetime').value = now.toISOString().slice(0, 16);
     }
 
-    function getWHO(s, d) {
-        if (s < 45 || d < 35) return { t: "CHYBA", c: "#95a5a6" }; 
-        if (s >= 160 || d >= 100) return { t: "Hyp. 2", c: "#e74c3c" };
-        if (s >= 140 || d >= 90) return { t: "Hyp. 1", c: "#e67e22" };
-        if (s >= 130 || d >= 85) return { t: "V. Norm", c: "#f1c40f" };
-        if (s >= 120 || d >= 80) return { t: "Normál", c: "#2ecc71" };
-        if (s < 95 || d < 60) return { t: "Nízký", c: "#3498db" };
-        return { t: "Optimál", c: "#27ae60" };
+    // Logika WHO
+    function evaluatePressure(s, d) {
+        if (s >= 160 || d >= 100) return { t: 'Vysoký 2', c: '#e74c3c' };
+        if (s >= 140 || d >= 90) return { t: 'Vysoký 1', c: '#e67e22' };
+        if (s >= 130 || d >= 85) return { t: 'V. Normál', c: '#f1c40f' };
+        if (s >= 120 || d >= 80) return { t: 'Normál', c: '#2ecc71' };
+        if (s < 95 || d < 60) return { t: 'Nízký', c: '#3498db' };
+        return { t: 'Optimální', c: '#27ae60' };
     }
 
-    function saveData() {
+    // Uložení
+    function saveRecord() {
         const sys = parseInt(document.getElementById('sys').value);
         const dia = parseInt(document.getElementById('dia').value);
         const pulse = parseInt(document.getElementById('pulse').value);
         const note = document.getElementById('note').value;
-        if (!sys || !dia) return alert("Zadejte prosím hodnoty!");
+        const dt = new Date(document.getElementById('datetime').value);
 
-        const d = new Date(document.getElementById('datetime').value);
+        if (!sys || !dia) { alert('Zadej SYS a DIA!'); return; }
+
         const record = {
             id: Date.now(),
-            date: d.toLocaleDateString('cs-CZ'),
-            time: d.toLocaleTimeString('cs-CZ', {hour:'2-digit', minute:'2-digit'}),
-            mYear: d.toLocaleDateString('cs-CZ', {month:'long', year:'numeric'}),
-            sys, dia, pulse, note
+            sys, dia, pulse, note,
+            timestamp: dt.getTime(),
+            dateStr: dt.toLocaleDateString('cs-CZ'),
+            timeStr: dt.toLocaleTimeString('cs-CZ', {hour:'2-digit', minute:'2-digit'}),
+            monthYear: dt.toLocaleDateString('cs-CZ', {month:'long', year:'numeric'})
         };
 
-        let history = JSON.parse(localStorage.getItem('bp_final_storage')) || [];
+        const history = JSON.parse(localStorage.getItem('tlakom_data') || '[]');
         history.unshift(record);
-        localStorage.setItem('bp_final_storage', JSON.stringify(history));
-        
-        document.getElementById('sys').value = ''; 
-        document.getElementById('dia').value = ''; 
+        localStorage.setItem('tlakom_data', JSON.stringify(history));
+
+        // Vyčistit pole
+        document.getElementById('sys').value = '';
+        document.getElementById('dia').value = '';
         document.getElementById('pulse').value = '';
         document.getElementById('note').value = '';
-        setNow(); displayHistory();
+        
+        resetDateTime();
+        render();
     }
 
-    function displayHistory() {
-        const history = JSON.parse(localStorage.getItem('bp_final_storage')) || [];
+    // Smazání
+    function deleteRecord(id) {
+        if (confirm('Smazat toto měření?')) {
+            let history = JSON.parse(localStorage.getItem('tlakom_data') || '[]');
+            history = history.filter(r => r.id !== id);
+            localStorage.setItem('tlakom_data', JSON.stringify(history));
+            render();
+        }
+    }
+
+    // Hlavní vykreslování
+    function render() {
+        const history = JSON.parse(localStorage.getItem('tlakom_data') || '[]');
         const container = document.getElementById('history-container');
-        const totalStats = document.getElementById('total-stats');
+        const statsDiv = document.getElementById('total-stats');
+        
         container.innerHTML = '';
 
         if (history.length === 0) {
-            totalStats.innerHTML = "";
-            container.innerHTML = "<p style='text-align:center; color:#999;'>Zatím žádné záznamy.</p>";
+            statsDiv.innerHTML = '';
+            container.innerHTML = '<p style="text-align:center; color:gray; margin-top:20px;">Žádná data nejsou k dispozici.</p>';
             return;
         }
 
-        const validH = history.filter(i => i.sys >= 45);
-        if (validH.length > 0) {
-            const tSys = Math.round(validH.reduce((a, b) => a + b.sys, 0) / validH.length);
-            const tDia = Math.round(validH.reduce((a, b) => a + b.dia, 0) / validH.length);
-            totalStats.innerHTML = `<div class="stat-box"><b>∅ CELKOVÝ PRŮMĚR</b><span>${tSys}/${tDia}</span></div><div class="stat-box"><b>📊 MĚŘENÍ</b><span>${history.length}</span></div>`;
-        }
+        // 1. Celkové průměry
+        const avgSys = Math.round(history.reduce((a, b) => a + b.sys, 0) / history.length);
+        const avgDia = Math.round(history.reduce((a, b) => a + b.dia, 0) / history.length);
+        statsDiv.innerHTML = `
+            <div class="stat-box"><b>Průměrný tlak</b><span>${avgSys}/${avgDia}</span></div>
+            <div class="stat-box"><b>Počet měření</b><span>${history.length}</span></div>
+        `;
 
-        const groups = {};
-        history.forEach(r => {
-            if (!groups[r.mYear]) groups[r.mYear] = [];
-            groups[r.mYear].push(r);
-        });
+        // 2. Seskupení podle měsíců
+        const months = [...new Set(history.map(r => r.monthYear))];
 
-        for (const month in groups) {
-            const items = groups[month];
-            const mValid = items.filter(i => i.sys >= 45);
-            const mSys = mValid.length ? Math.round(mValid.reduce((a, b) => a + b.sys, 0) / mValid.length) : 0;
-            const mDia = mValid.length ? Math.round(mValid.reduce((a, b) => a + b.dia, 0) / mValid.length) : 0;
+        months.forEach(m => {
+            const mData = history.filter(r => r.monthYear === m);
+            const mAvgSys = Math.round(mData.reduce((a, b) => a + b.sys, 0) / mData.length);
+            const mAvgDia = Math.round(mData.reduce((a, b) => a + b.dia, 0) / mData.length);
 
-            let html = `<div class="month-section"><div class="month-title"><span>📅 ${month.toUpperCase()}</span><span>∅ ${mSys}/${mDia}</span></div><div class="table-wrapper"><table><thead><tr><th>Kdy</th><th>Tlak</th><th>Stav</th><th>Tep</th><th>Poznámka</th><th class="col-del"></th></tr></thead><tbody>`;
-            
-            items.forEach((item, idx) => {
-                const who = getWHO(item.sys, item.dia);
+            let mHtml = `
+                <div class="month-wrap">
+                    <div class="month-header">
+                        <span>${m.toUpperCase()}</span>
+                        <span>∅ ${mAvgSys}/${mAvgDia}</span>
+                    </div>
+                    <div class="table-card">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Kdy</th>
+                                    <th>Tlak</th>
+                                    <th>Stav</th>
+                                    <th>Tep</th>
+                                    <th>Pozn.</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+            `;
+
+            mData.forEach((r, idx) => {
+                const who = evaluatePressure(r.sys, r.dia);
                 let trend = "";
-                if (idx < items.length - 1) {
-                    const prev = items[idx + 1];
-                    if (item.sys > prev.sys) trend = ' <span style="color:var(--danger)">▲</span>'; 
-                    else if (item.sys < prev.sys) trend = ' <span style="color:#2ecc71">▼</span>';
+                if (idx < mData.length - 1) {
+                    const next = mData[idx + 1];
+                    if (r.sys > next.sys) trend = '<span style="color:var(--danger)">▲</span>';
+                    else if (r.sys < next.sys) trend = '<span style="color:var(--accent)">▼</span>';
                 }
-                html += `<tr><td><b>${item.date}</b><br>${item.time}</td><td class="val-bold">${item.sys}/${item.dia}${trend}</td><td><span class="who-badge" style="background:${who.c}">${who.t}</span></td><td class="pulse-bold">${item.pulse || '-'}</td><td>${item.note}</td><td class="col-del"><button class="btn-del-icon" onclick="deleteItem(${item.id})">🗑️</button></td></tr>`;
+
+                mHtml += `
+                    <tr>
+                        <td style="font-size:0.75rem"><b>${r.dateStr}</b><br>${r.timeStr}</td>
+                        <td class="val">${r.sys}/${r.dia} ${trend}</td>
+                        <td><span class="badge" style="background:${who.c}">${who.t}</span></td>
+                        <td style="font-weight:700">${r.pulse || '-'}</td>
+                        <td style="font-size:0.75rem; color:gray">${r.note || ''}</td>
+                        <td><button class="delete-btn" onclick="deleteRecord(${r.id})">×</button></td>
+                    </tr>
+                `;
             });
-            container.innerHTML += html + `</tbody></table></div></div>`;
-        }
+
+            mHtml += `</tbody></table></div></div>`;
+            container.innerHTML += mHtml;
+        });
     }
 
-    function deleteItem(id) {
-        if (confirm("Smazat?")) {
-            let h = JSON.parse(localStorage.getItem('bp_final_storage')) || [];
-            localStorage.setItem('bp_final_storage', JSON.stringify(h.filter(i => i.id !== id)));
-            displayHistory();
-        }
-    }
-
+    // Export do CSV
     function exportCSV() {
-        const h = JSON.parse(localStorage.getItem('bp_final_storage')) || [];
-        let csv = "\ufeffDatum;Cas;SYS;DIA;Tep;Poznamka\n";
-        h.forEach(r => csv += `${r.date};${r.time};${r.sys};${r.dia};${r.pulse};${r.note}\n`);
-        const b = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const l = document.createElement("a"); l.href = URL.createObjectURL(b); l.download = "tlak_export.csv"; l.click();
+        const history = JSON.parse(localStorage.getItem('tlakom_data') || '[]');
+        if (!history.length) return;
+        let csv = "\ufeffDatum;Čas;SYS;DIA;Tep;Poznámka\n";
+        history.forEach(r => {
+            csv += `${r.dateStr};${r.timeStr};${r.sys};${r.dia};${r.pulse};${r.note}\n`;
+        });
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "export_tlaku.csv";
+        link.click();
     }
 </script>
+
 </body>
 </html>
