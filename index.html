@@ -1,1 +1,90 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#2ecc71">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Můj Tlakoměr - Kompletní Deník</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="https://img.icons8.com/fluency/512/visible-heart.png">
 
+    <style>
+        :root {
+            --primary: #000000;
+            --accent: #2ecc71; /* Nová svěží zelená pro ladění s ikonou */
+            --danger: #e74c3c;
+            --low: #3498db;
+            --bg: #f4f4f4;
+            --border: #000000;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--bg);
+            color: var(--primary);
+            margin: 0;
+            padding: 10px;
+        }
+
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+
+        h2 { text-align: center; border-bottom: 3px solid var(--accent); padding-bottom: 10px; text-transform: uppercase; margin-top: 10px; }
+
+        /* Hlavní statistiky */
+        #total-stats { display: flex; gap: 10px; margin-bottom: 20px; }
+        .stat-box { flex: 1; padding: 12px; border: 1px solid var(--border); text-align: center; border-radius: 8px; background: #fff; }
+        .stat-box b { display: block; font-size: 0.75rem; color: #555; text-transform: uppercase; margin-bottom: 5px; }
+        .stat-box span { font-size: 1.4rem; font-weight: 900; color: var(--accent); }
+
+        /* Formulář */
+        .form-box { background: #fff; padding: 20px; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 25px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .input-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 12px; }
+        label { font-size: 0.8rem; font-weight: 900; text-transform: uppercase; display: block; margin-bottom: 5px; }
+        input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-weight: bold; font-size: 1rem; }
+        input:focus { border-color: var(--accent); outline: none; }
+        
+        .btn-group { display: flex; gap: 8px; margin-top: 15px; }
+        button { flex: 1; padding: 15px; border: none; border-radius: 10px; font-weight: 900; cursor: pointer; text-transform: uppercase; color: white; transition: 0.2s; }
+        .btn-add { background: var(--accent); }
+        .btn-export { background: #555; }
+        .btn-print { background: var(--primary); }
+        button:active { transform: scale(0.98); }
+
+        /* Měsíční sekce a Tabulky */
+        .month-section { margin-top: 35px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+        .month-title { background: var(--primary); color: white; padding: 12px 15px; font-weight: 900; display: flex; justify-content: space-between; align-items: center; }
+        
+        .table-wrapper { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; background: white; min-width: 500px; }
+        th { background: #f1f1f1; padding: 12px; font-size: 0.7rem; border-bottom: 2px solid var(--border); text-align: left; text-transform: uppercase; }
+        td { padding: 12px; border-bottom: 1px solid #eee; font-size: 0.95rem; vertical-align: middle; }
+
+        .val-bold { font-weight: 900; font-size: 1.1rem; }
+        .pulse-bold { font-weight: 900; color: var(--accent); }
+        
+        .who-badge { font-size: 0.65rem; padding: 4px 6px; border-radius: 4px; font-weight: 900; color: white; border: 1px solid rgba(0,0,0,0.2); text-transform: uppercase; }
+
+        /* Tlačítko smazat */
+        .btn-del-icon { background: none; border: none; font-size: 1.3rem; cursor: pointer; padding: 5px; color: var(--danger); display: flex; align-items: center; justify-content: center; }
+
+        @media print {
+            .form-box, .btn-group, .col-del { display: none !important; }
+            body { padding: 0; background: white; }
+            .container { box-shadow: none; max-width: 100%; border: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🩸 DENÍK MĚŘENÍ TLAKU</h2>
+
+    <div id="total-stats"></div>
+
+    <div class="form-box">
+        <div style="margin-bottom: 12px;">
+            <label>📅 Datum a čas</label>
+            <input type="
